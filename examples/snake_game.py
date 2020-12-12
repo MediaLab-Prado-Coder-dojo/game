@@ -2,11 +2,12 @@ import random
 import time
 
 
-serpiente_simbolo = "\u25A2"
+
+serpiente_simbolo = "O"
 # base_symbol = "\u2B1A"
-relleno = "."
-valor_maximo = 3
-comida_simbolo = "\u2586"
+relleno = "#"
+valor_maximo = 20
+comida_simbolo = "."
 intervalo_tiempo = 1
 matrix = [[]]
 comida_posicion = [0,0]
@@ -110,6 +111,20 @@ def move_serpiente(player):
     else:
         comida()
 
+def cambiar_direccion(serpiente):
+    direccion = input("cambiar direccion")
+    if direccion == '3':
+        serpiente.sentido = 3
+    elif direccion == '6':
+        serpiente.sentido = 6
+    elif direccion == '9':
+        serpiente.sentido = 9
+    elif direccion == '0':
+        serpiente.sentido = 0
+    else:
+        print("error, presione una tecla: ")
+
+
 def game():
     """inicia el juego con la secuencia de funciones para que funcione"""
     player1 =  serpiente()
@@ -118,10 +133,11 @@ def game():
         time.sleep(intervalo_tiempo)
         print("size:",matrix.__len__(), " head:", player1.cabeza())
         hacer_matrix()
-        comida()
+        # comida()
         print_serpiente(player1)
         move_serpiente(player1)
         imprimir_matrix()
+        cambiar_direccion(player1)
 
 
 game()
