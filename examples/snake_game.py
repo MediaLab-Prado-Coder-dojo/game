@@ -1,14 +1,13 @@
 import random
 import time
-
+import keyboard
 
 
 serpiente_simbolo = "O"
-# base_symbol = "\u2B1A"
-relleno = "#"
+relleno = " "
 valor_maximo = 20
 comida_simbolo = "."
-intervalo_tiempo = 1
+intervalo_tiempo = 0.2
 matrix = [[]]
 comida_posicion = [0,0]
 
@@ -17,11 +16,7 @@ def hacer_matrix():
     """ Crear una matrix de dimensiones n por n, donde n es igual al valor_maximo"""
     global matrix, base_symbol, max_value
     matrix = [[relleno for i in range(valor_maximo)] for i in range(valor_maximo)]
-    # matrix = []
-    # for linea_roja in range(max_value):
-    #    matrix.append([])
-    #    for linea_azul in range(max_value):
-    #        linea_roja.append(base_symbol)
+
 
 def imprimir_matrix():
     """imprimir cada lista y contenido de lista omitiendo los corchetes y comillas usando la función print con asterisco"""
@@ -37,24 +32,6 @@ def comida():
     y = random.randint(0, valor_maximo -1)
     comida_posicion = [x,y]
     matrix[x][y] = comida_simbolo
-
-class taza():
-    """ejemplo de un objeto taza en la vida real"""
-    def __init__(self):
-        self.contenido = "nada"
-        self.color = "rojo"
-        self.tamaño = 7
-    
-    def checar_contenido(self):
-        return self.contenido
-
-    def rellenar_con_cafe(self):
-        self.contenido = "cafe"
-        return "tiene cafe"
-
-    def vaciar(self):
-        self.contenido = "nada"
-        return "se ha vaciado"
 
 
 class serpiente():
@@ -73,6 +50,12 @@ class serpiente():
     def longitud(self):
         """devuelve el tamaño de la lista cuerpo"""
         return self.cuerpo.__len__()
+
+
+def borrar_serpiente(player):
+    global matrix
+    for point in player.cuerpo:
+        matrix[point[0]][point[1]] = relleno
 
 
 def print_serpiente(player):
@@ -111,33 +94,34 @@ def move_serpiente(player):
     else:
         comida()
 
-def cambiar_direccion(serpiente):
-    direccion = input("cambiar direccion")
-    if direccion == '3':
-        serpiente.sentido = 3
-    elif direccion == '6':
-        serpiente.sentido = 6
-    elif direccion == '9':
-        serpiente.sentido = 9
-    elif direccion == '0':
+
+def cambiar_direccion_kb(serpiente):
+    if keyboard.is_pressed('w'):
         serpiente.sentido = 0
-    else:
-        print("error, presione una tecla: ")
+    
+    elif keyboard.is_pressed('s'):
+        serpiente.sentido = 6
+    
+    elif keyboard.is_pressed('a'):
+        serpiente.sentido = 9
+    
+    elif keyboard.is_pressed('d'):
+        serpiente.sentido = 3
 
 
 def game():
     """inicia el juego con la secuencia de funciones para que funcione"""
     player1 =  serpiente()
-
+    hacer_matrix()
+    comida()
+    imprimir_matrix()
     while True:
-        time.sleep(intervalo_tiempo)
-        print("size:",matrix.__len__(), " head:", player1.cabeza())
-        hacer_matrix()
-        # comida()
+        print("score:",player1.longitud() -1, " head:", player1.cabeza())
         print_serpiente(player1)
-        move_serpiente(player1)
         imprimir_matrix()
-        cambiar_direccion(player1)
-
-
+        borrar_serpiente(player1)
+        move_serpiente(player1)
+        cambiar_direccion_kb(player1)
+        time.sleep(intervalo_tiempo)
+        
 game()
