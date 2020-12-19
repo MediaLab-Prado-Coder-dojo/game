@@ -1,13 +1,23 @@
 import random
 import time
 import keyboard
+import os
+from firebase import Firebase
+
+"""iniciar base de datos en tiempo real firebase"""
+config = {
+  "apiKey": "AIzaSyAMj8kS-gcfbBm4OxIQELj5_dXeje7z8Ks",
+  "authDomain": "medialabprado-snakegame.firebaseapp.com",
+  "databaseURL": "https://medialabprado-snakegame-default-rtdb.firebaseio.com/",
+  "storageBucket": "gs://medialabprado-snakegame.appspot.com"
+}
 
 
-serpiente_simbolo = "O"
-relleno = " "
-valor_maximo = 20
-comida_simbolo = "."
-intervalo_tiempo = 0.2
+
+relleno = "\u25A2"
+valor_maximo = 30
+comida_simbolo = "\u25CE"
+intervalo_tiempo = 1
 matrix = [[]]
 comida_posicion = [0,0]
 
@@ -24,6 +34,18 @@ def imprimir_matrix():
     for __line in matrix:
         print(*__line)
 
+def lista_a_txt():
+    global matrix
+    str_matrix = ""
+    for __line in matrix:
+        for _content in __line:
+            str_matrix +=_content
+            str_matrix += " "
+        str_matrix += "\n"
+    os.system('clear')
+    print("score:",player1.longitud() -1, " head:", player1.cabeza(), " food:", comida_posicion)
+    print(str_matrix)
+
 
 def comida():
     """define una posicion aleatoria de la comida dentro de la matrix"""
@@ -32,37 +54,6 @@ def comida():
     y = random.randint(0, valor_maximo -1)
     comida_posicion = [x,y]
     matrix[x][y] = comida_simbolo
-
-
-class serpiente():
-    """ Objeto serpiente del juego"""
-    def __init__(self):
-        """valores con los que inicia el objeto serpiente, como la posicion aleatoria y el sentido"""
-        x = random.randint(0, valor_maximo -1)
-        y = random.randint(0, valor_maximo -1)
-        self.cuerpo = [[x,y]]
-        self.sentido = 3
-
-    def cabeza(self):
-        """devuelve el primer valor de la  lista cuerpo"""
-        return self.cuerpo[0]
-
-    def longitud(self):
-        """devuelve el tamaño de la lista cuerpo"""
-        return self.cuerpo.__len__()
-
-
-def borrar_serpiente(player):
-    global matrix
-    for point in player.cuerpo:
-        matrix[point[0]][point[1]] = relleno
-
-
-def print_serpiente(player):
-    """agrega los puntos [y,x] de la lista cuerpo en el objeto serpiente y los pone dentro de matrix"""
-    global serpiente_simbolo, matrix
-    for point in player.cuerpo:
-        matrix[point[0]][point[1]] = serpiente_simbolo
 
 
 def limite(numero):
@@ -75,53 +66,109 @@ def limite(numero):
     else:
         return numero
 
-def move_serpiente(player):
-    """define el movimiento de la serpiente en la dirección o sentido del objeto serpiente"""
-    y = player.cabeza()[0]
-    x = player.cabeza()[1]
+class serpiente():
+    """ Objeto serpiente del juego"""
+    def __init__(self, controls=["w","a","s","d"], simbolo="\u25A6"):
+        """valores con los que inicia el objeto serpiente, como la posicion aleatoria y el sentido"""
+        x = random.randint(0, valor_maximo -1)
+        y = random.randint(0, valor_maximo -1)
+        self.cuerpo = [[x,y]]
+        self.sentido = 3
+        self.controls = controls
+        self.symbol = simbolo
+        self.nombre = "Ignacio"
+        # self.symbol = "\u25A6"
 
-    if player.sentido == 0:
-        player.cuerpo.insert(0, [limite(y-1), x])
-    elif player.sentido == 3:
-        player.cuerpo.insert(0,[y, limite(x+1)])
-    elif player.sentido == 6:
-        player.cuerpo.insert(0,[limite(y+1), x])
-    elif player.sentido == 9:
-        player.cuerpo.insert(0,[y, limite(x-1)])
+    def cabeza(self):
+        """devuelve el primer valor de la  lista cuerpo"""
+        return self.cuerpo[0]
 
-    if player.cabeza() != comida_posicion:
-        player.cuerpo.remove(player.cuerpo[-1])
-    else:
-        comida()
+    def longitud(self):
+        """devuelve el tamaño de la lista cuerpo"""
+        return self.cuerpo.__len__()
+
+    def borrar_serpiente(self):
+        global matrix, relleno
+        for point in self.cuerpo:
+            matrix[point[0]][point[1]] = relleno
+
+    def print_serpiente(self):
+        """agrega los puntos [y,x] de la lista cuerpo en el objeto serpiente y los pone dentro de matrix"""
+        global matrix
+        for point in self.cuerpo:
+            matrix[point[0]][point[1]] = self.symbol
+
+    def move_serpiente(self):
+        """define el movimiento de la serpiente en la dirección o sentido del objeto serpiente"""
+        y = self.cabeza()[0]
+        x = self.cabeza()[1]
+        if self.sentido == 0:
+            self.cuerpo.insert(0, [limite(y-1), x])
+        elif self.sentido == 3:
+            self.cuerpo.insert(0,[y, limite(x+1)])
+        elif self.sentido == 6:
+            self.cuerpo.insert(0,[limite(y+1), x])
+        elif self.sentido == 9:
+            self.cuerpo.insert(0,[y, limite(x-1)])
+        if self.cabeza() != comida_posicion:
+            self.cuerpo.remove(self.cuerpo[-1])
+        else:
+            comida()
+
+    def cambiar_direccion_kb(self):
+        if keyboard.is_pressed(self.controls[0]):
+            self.sentido = 0
+        elif keyboard.is_pressed(self.controls[1]):
+            self.sentido = 9
+        elif keyboard.is_pressed(self.controls[2]):
+            self.sentido = 6
+        elif keyboard.is_pressed(self.controls[3]):
+            self.sentido = 3
 
 
-def cambiar_direccion_kb(serpiente):
-    if keyboard.is_pressed('w'):
-        serpiente.sentido = 0
-    
-    elif keyboard.is_pressed('s'):
-        serpiente.sentido = 6
-    
-    elif keyboard.is_pressed('a'):
-        serpiente.sentido = 9
-    
-    elif keyboard.is_pressed('d'):
-        serpiente.sentido = 3
+def multiplayer(players):
+    for player in players:
+        player.print_serpiente()
+    imprimir_matrix()
+    # lista_a_txt()
+    for player in players:
+        player.borrar_serpiente()
+        player.move_serpiente()
+        player.cambiar_direccion_kb()
+
+
+def base_de_datos(player):
+    firebase = Firebase(config)
+    db = firebase.database()
+    # data to save
+    datos = {
+        player.nombre : player.cuerpo
+    }
+    # Pass the user's idToken to the push method
+    results = db.child("players").push(datos)
+
+player1 = serpiente(simbolo="1")
+player2 = serpiente(controls=["8","4","5","6"], simbolo="2")
+# player3 = serpiente(controls=[])
+players = [player1, player2]
+
 
 
 def game():
-    """inicia el juego con la secuencia de funciones para que funcione"""
-    player1 =  serpiente()
+    global players
+    """inicia el juego con la secuencia de funciones para que inicie"""
     hacer_matrix()
     comida()
-    imprimir_matrix()
+
     while True:
-        print("score:",player1.longitud() -1, " head:", player1.cabeza())
-        print_serpiente(player1)
-        imprimir_matrix()
-        borrar_serpiente(player1)
-        move_serpiente(player1)
-        cambiar_direccion_kb(player1)
+        # print("score:",player1.longitud() -1, " head:", player1.cabeza(), " food:", comida_posicion)
+        multiplayer(players)
+        base_de_datos(player1)
+        # player1.print_serpiente()
+        # imprimir_matrix()
+        # player1.borrar_serpiente()
+        # player1.move_serpiente()
+        # player1.cambiar_direccion_kb()
         time.sleep(intervalo_tiempo)
-        
+
 game()
