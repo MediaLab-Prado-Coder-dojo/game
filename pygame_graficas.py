@@ -12,7 +12,7 @@ de setup():
     width = 10
     game_display = pygame.display.set_mode((display_width, display_height))
     game_display.fill(black)
-    
+
 
 def graficas(points):
     global game_display
@@ -31,5 +31,3 @@ def graficas(points):
                 pygame.quit()
                 quit()
         pygame.display.update()
-
-

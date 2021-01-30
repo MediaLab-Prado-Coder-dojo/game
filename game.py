@@ -3,6 +3,7 @@ import time
 import keyboard
 import os
 from firebase import Firebase
+#librerias propias
 from configuration import config, intervalo_tiempo, tamaño_campo, comida_posicion
 from ascii import relleno, matrix, comida_simbolo, hacer_matrix, imprimir_matrix, lista_a_txt
 from pygame_graficas import graficas
